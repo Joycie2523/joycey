@@ -1,15 +1,35 @@
 <?php
 
 require_once 'vendor/autoload.php';
-
 use Aries\Dbmodel\Models\Todo;
 
 $todo = new Todo();
 
-    if(isset($_POST['submit']))
-        {
-            $todo->createTodo(['todo_name'=> $_POST['todo']]);
-        }
+// Add a new to-do (CREATE)
+if (isset($_POST['submit'])) {
+    if (!empty($_POST['todo'])) {
+        $todo->createTodo(['todo_name' => $_POST['todo']]);
+        header("Location: index.php"); // Refresh page after adding
+        exit();
+    }
+}
+
+// Delete a to-do (DELETE)
+if (isset($_POST['delete']) && !empty($_POST['id'])) {
+    $todo->deleteTodo($_POST['id']);
+    header("Location: index.php");
+    exit();
+}
+
+// Update a to-do (UPDATE)
+if (isset($_POST['update']) && !empty($_POST['id']) && !empty($_POST['todo_name'])) {
+    $todo->updateTodo($_POST['id'], ['todo_name' => $_POST['todo_name']]);
+    header("Location: index.php");
+    exit();
+}
+
+// Get all to-do items (READ)
+$todos = $todo->getTodos();
 
 ?>
 
@@ -21,41 +41,38 @@ $todo = new Todo();
     <title>TODO LIST</title>
 </head>
 <body>
-<h1>My To-do List</h1>
-        <form method="POST" action="index.php">
-        <input type="text" name="todo" id="">
-        <input type="submit" value="Submit" name="submit">
-    </form>
-    
-        <?php 
-    
-    //For creating to-do list    
-    // $todo = new Todo();
-    // $todos = $todo->createTodo([
-    //     'todo_name' => "Submit OOP Project this 12:00 am."
-    // ]);
 
+<h1>My To-Do List</h1>
 
-    //For getting the to-do list
-    // $todos = $todo->getTodos();
-    //         foreach ($todos as $key=>$value)
-    //         {
-    //         echo '<li>'.$value["todo_name"].'</li>';
-    //         }
+<!-- Form to add a new task -->
+<form method="POST" action="index.php">
+    <input type="text" name="todo" placeholder="Enter a task" required>
+    <input type="submit" value="Add Task" name="submit">
+</form>
 
-     //For getting To-do SPECIFICALLY       
-        //     $todos = $todo->getTodo(1);
-        //    echo '<li>'.$todos["todo_name"].'</li>';
-            // }
+<!-- Display the to-do list with Update and Delete options -->
+<ul>
+    <?php if (!empty($todos)): ?>
+        <?php foreach ($todos as $task): ?>
+            <li>
+                <!-- Update Form -->
+                <form method="POST" action="index.php" style="display: inline;">
+                    <input type="hidden" name="id" value="<?php echo htmlspecialchars($task['id']); ?>">
+                    <input type="text" name="todo_name" value="<?php echo htmlspecialchars($task['todo_name']); ?>" required>
+                    <button type="submit" name="update">Update</button>
+                </form>
 
-                    
-            
-    //For deleting the to-do list
-    //$todo = new Todo();
-            // $result = $todo->deleteTodo(4);     
-            //echo $result; 
-            ?>
-            
-    </ul>
+                <!-- Delete Form -->
+                <form method="POST" action="index.php" style="display: inline;">
+                    <input type="hidden" name="id" value="<?php echo htmlspecialchars($task['id']); ?>">
+                    <button type="submit" name="delete">Delete</button>
+                </form>
+            </li>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <li>No tasks found.</li>
+    <?php endif; ?>
+</ul>
+
 </body>
 </html>

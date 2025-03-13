@@ -23,7 +23,7 @@ class Todo extends Database {
         $sql = "SELECT * FROM tbl_todo WHERE t_id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            'id' => $id
+            't_id' => $id
         ]);
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
@@ -41,7 +41,7 @@ class Todo extends Database {
         $sql = "UPDATE tbl_todo SET todo_name = :todo_name WHERE t_id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            'id' => $data['id'],
+            't_id' => $data['t_id'],
             'todo_name' => $data['todo_name'],
         ]);
         return "Record UPDATED successfully";
@@ -51,7 +51,7 @@ class Todo extends Database {
         $sql = "DELETE FROM tbl_todo WHERE t_id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            'id' => $id
+            't_id' => $id
         ]);
         return "Record DELETED successfully";
     }   
